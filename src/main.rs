@@ -49,19 +49,22 @@ fn generate_ppm() -> io::Result<()> {
     Ok(())
 }
 
-fn hit_sphere(center: Vec3, radius: f64, ray: &Ray) -> bool {
+fn hit_sphere(center: Vec3, radius: f64, ray: &Ray) -> Option<f64> {
     let co = ray.origin() - center;
-    let b = 2.0 * ray.direction().dot(co);
-    let a = ray.direction().dot(ray.direction());
-    let c = co.dot(co) - radius * radius;
-    let descrim = b * b - 4.0 * a * c;
-    descrim > 0.0
+    let a = ray.direction().length_squared();
+    let half_b = ray.direction().dot(co);
+    let c = co.length_squared() - radius * radius;
+    let descrim = half_b * half_b - a * c;
+
+    (descrim > 0.0).then_some((-half_b - descrim.sqrt()) / a)
 }
 
 fn ray_color(ray: &Ray) -> Color {
     let sphere_c = Vec3::new(0.0, 0.0, -1.0);
-    if hit_sphere(sphere_c, 0.5, ray) {
-        return RED;
+    if let Some(t) = hit_sphere(sphere_c, 0.5, ray) {
+        let surf_normal = (ray.at(t) - sphere_c).normalized();
+        let color_v = 0.5 * (surf_normal + Vec3::new(1.0, 1.0, 1.0));
+        return color_v.into();
     }
 
     let dir = ray.direction().normalized();
