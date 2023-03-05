@@ -1,3 +1,4 @@
+use ray_tracing_1::color::Color;
 use std::io::{self, Write};
 
 fn main() {
@@ -15,15 +16,24 @@ fn main() {
         io::stderr().flush().expect("Unable to flush to stderr");
 
         for i in 0..image_width {
-            let r = i as f64 / (image_width - 1) as f64;
-            let g = j as f64 / (image_height - 1) as f64;
-            let b = 0.25;
-
-            let r = (255.999 * r) as i32;
-            let g = (255.999 * g) as i32;
-            let b = (255.999 * b) as i32;
-
-            println!("{r} {g} {b}");
+            let pixel_color = Color {
+                red: i as f64 / (image_width - 1) as f64,
+                green: j as f64 / (image_height - 1) as f64,
+                blue: 0.25,
+            };
+            write_color(&mut io::stdout(), pixel_color).expect("Writing to stdout should succeed");
         }
     }
+
+    eprintln!("\nDone");
+}
+
+pub fn write_color<T: io::Write>(writer: &mut T, color: Color) -> io::Result<()> {
+    writeln!(
+        writer,
+        "{} {} {}",
+        (255.999 * color.red) as i32,
+        (255.999 * color.green) as i32,
+        (255.999 * color.blue) as i32,
+    )
 }
