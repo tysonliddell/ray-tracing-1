@@ -2,6 +2,13 @@ use ray_tracing_1::color::Color;
 use std::io::{self, Write};
 
 fn main() {
+    if let Err(e) = generate_ppm() {
+        eprintln!("Error generating image: {}", e);
+        std::process::exit(1);
+    }
+}
+
+fn generate_ppm() -> io::Result<()> {
     // Image
     let image_width = 256;
     let image_height = 256;
@@ -13,7 +20,7 @@ fn main() {
 
     for j in (0..image_height).rev() {
         eprint!("\rScanlines remaining: {j} ");
-        io::stderr().flush().expect("Unable to flush to stderr");
+        io::stderr().flush()?;
 
         for i in 0..image_width {
             let pixel_color = Color {
@@ -21,14 +28,15 @@ fn main() {
                 green: j as f64 / (image_height - 1) as f64,
                 blue: 0.25,
             };
-            write_color(&mut io::stdout(), pixel_color).expect("Writing to stdout should succeed");
+            write_color(&mut io::stdout(), pixel_color)?;
         }
     }
 
     eprintln!("\nDone");
+    Ok(())
 }
 
-pub fn write_color<T: io::Write>(writer: &mut T, color: Color) -> io::Result<()> {
+fn write_color<T: io::Write>(writer: &mut T, color: Color) -> io::Result<()> {
     writeln!(
         writer,
         "{} {} {}",

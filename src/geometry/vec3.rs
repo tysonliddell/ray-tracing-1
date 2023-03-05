@@ -4,9 +4,9 @@ use std::ops;
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 /// Three-dimensional Euclidean vector.
 pub struct Vec3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+    x: f64,
+    y: f64,
+    z: f64,
 }
 
 const VEC3_DIM: usize = 3;
@@ -14,6 +14,18 @@ const VEC3_DIM: usize = 3;
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
+    }
+
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    pub fn y(&self) -> f64 {
+        self.y
+    }
+
+    pub fn z(&self) -> f64 {
+        self.z
     }
 
     /// Get the Euclidean length of a vector.
