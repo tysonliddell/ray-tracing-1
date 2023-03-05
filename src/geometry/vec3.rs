@@ -40,7 +40,7 @@ impl Vec3 {
     }
 
     /// Get the dot product with another vectors.
-    pub fn dot(&self, other: &Self) -> f64 {
+    pub fn dot(&self, other: Self) -> f64 {
         (0..VEC3_DIM).map(|i| self[i] * other[i]).sum()
     }
 
@@ -272,7 +272,7 @@ mod test {
     fn dot() {
         let v1 = Vec3::new(1.0, 2.0, 3.0);
         let v2 = Vec3::new(2.0, 3.0, 4.0);
-        assert_eq!(2.0 + 6.0 + 12.0, v1.dot(&v2));
+        assert_eq!(2.0 + 6.0 + 12.0, v1.dot(v2));
     }
 
     #[test]

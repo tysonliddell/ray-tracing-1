@@ -1,5 +1,5 @@
 use ray_tracing_1::{
-    color::Color,
+    color::{Color, RED},
     geometry::{ray::Ray, vec3::Vec3},
 };
 use std::io::{self, Write};
@@ -49,7 +49,21 @@ fn generate_ppm() -> io::Result<()> {
     Ok(())
 }
 
+fn hit_sphere(center: Vec3, radius: f64, ray: &Ray) -> bool {
+    let co = ray.origin() - center;
+    let b = 2.0 * ray.direction().dot(co);
+    let a = ray.direction().dot(ray.direction());
+    let c = co.dot(co) - radius * radius;
+    let descrim = b * b - 4.0 * a * c;
+    descrim > 0.0
+}
+
 fn ray_color(ray: &Ray) -> Color {
+    let sphere_c = Vec3::new(0.0, 0.0, -1.0);
+    if hit_sphere(sphere_c, 0.5, ray) {
+        return RED;
+    }
+
     let dir = ray.direction().normalized();
     let t = 0.5 * (dir.y() + 1.0);
 
