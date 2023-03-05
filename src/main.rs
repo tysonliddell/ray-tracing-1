@@ -1,5 +1,5 @@
 use ray_tracing_1::{
-    color::{Color, RED},
+    color::Color,
     geometry::{ray::Ray, vec3::Vec3},
 };
 use std::io::{self, Write};
