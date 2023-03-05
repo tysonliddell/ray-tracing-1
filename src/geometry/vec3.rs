@@ -39,7 +39,7 @@ impl Vec3 {
         x * x + y * y + z * z
     }
 
-    /// Get the dot product with another vectors.
+    /// Get the dot product with another vector.
     pub fn dot(&self, other: Self) -> f64 {
         (0..VEC3_DIM).map(|i| self[i] * other[i]).sum()
     }
@@ -53,7 +53,7 @@ impl Vec3 {
         )
     }
 
-    /// Get the unit vector in the direction given.
+    /// Get the unit vector in the direction given by the vector.
     pub fn normalized(&self) -> Self {
         *self / self.length()
     }

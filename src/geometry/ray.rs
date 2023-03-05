@@ -19,12 +19,12 @@ impl Ray {
         self.origin
     }
 
-    /// The direction the `Ray` is pointing from the origin.
+    /// The direction the `Ray` is pointing from its origin.
     pub fn direction(&self) -> Vec3 {
         self.direction
     }
 
-    /// Compute the position along the `Ray`, starting from the origin,
+    /// Compute the position along the `Ray`, starting from its origin,
     /// at time `t`. Positive values of `t` yield positions in front
     /// of the origin and negative values yield positions behind the
     /// origin.
