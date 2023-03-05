@@ -54,14 +54,14 @@ impl Vec3 {
     }
 
     /// Get the unit vector in the direction given.
-    pub fn unit_vector(&self) -> Self {
+    pub fn normalized(&self) -> Self {
         *self / self.length()
     }
 
-    /// Normalize the current vector to have unit length.
-    pub fn normalize(&mut self) {
-        *self /= self.length();
-    }
+    // /// Normalize the current vector to have unit length.
+    // pub fn normalize(&mut self) {
+    //     *self /= self.length();
+    // }
 }
 
 impl ops::Neg for Vec3 {
@@ -202,7 +202,7 @@ mod test {
     fn length() {
         let (x, y, z, d) = PYTHAGOREAN_QUADRUPLE;
         let v = Vec3::new(x, y, z);
-        let d_sqrd = 21.0 * 21.0;
+        let d_sqrd = d * d;
         assert_eq!(d_sqrd, v.length_squared());
         assert_eq!(d_sqrd.sqrt(), v.length());
     }
@@ -287,11 +287,11 @@ mod test {
     fn unit_vector() {
         let (x, y, z, d) = PYTHAGOREAN_QUADRUPLE;
         let v = Vec3::new(x, y, z);
-        assert_eq!(Vec3::new(x / d, y / d, z / d), v.unit_vector());
+        assert_eq!(Vec3::new(x / d, y / d, z / d), v.normalized());
 
-        let mut v = v;
-        v.normalize();
-        assert_eq!(Vec3::new(x / d, y / d, z / d), v);
+        // let mut v = v;
+        // v.normalize();
+        // assert_eq!(Vec3::new(x / d, y / d, z / d), v);
     }
 
     #[test]

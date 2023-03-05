@@ -1,3 +1,5 @@
+use crate::geometry::vec3::Vec3;
+
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Color {
     pub red: f64,
@@ -8,5 +10,35 @@ pub struct Color {
 impl Color {
     pub fn new(red: f64, green: f64, blue: f64) -> Self {
         Self { red, green, blue }
+    }
+}
+
+impl From<Color> for Vec3 {
+    fn from(color: Color) -> Self {
+        Vec3::new(color.red, color.green, color.blue)
+    }
+}
+
+impl From<Vec3> for Color {
+    fn from(v: Vec3) -> Self {
+        Color::new(v.x(), v.y(), v.z())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Color;
+    use crate::geometry::vec3::Vec3;
+
+    #[test]
+    fn into_vec3() {
+        let color_v: Vec3 = Color::new(1.0, 2.0, 3.0).into();
+        assert_eq!(Vec3::new(1.0, 2.0, 3.0), color_v);
+    }
+
+    #[test]
+    fn from_vec3() {
+        let color: Color = Vec3::new(1.0, 2.0, 3.0).into();
+        assert_eq!(Color::new(1.0, 2.0, 3.0), color);
     }
 }

@@ -1,4 +1,7 @@
-use ray_tracing_1::color::Color;
+use ray_tracing_1::{
+    color::Color,
+    geometry::{ray::Ray, vec3::Vec3},
+};
 use std::io::{self, Write};
 
 fn main() {
@@ -10,8 +13,20 @@ fn main() {
 
 fn generate_ppm() -> io::Result<()> {
     // Image
-    let image_width = 256;
-    let image_height = 256;
+    let aspect_ratio = 16.0 / 9.0;
+    let image_width = 400;
+    let image_height = (image_width as f64 / aspect_ratio) as i32;
+
+    // Camera
+    let viewport_height = 2.0;
+    let viewport_width = aspect_ratio * viewport_height;
+    let focal_length = 1.0;
+
+    let origin = Vec3::new(0.0, 0.0, 0.0);
+    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
+    let vertical = Vec3::new(0.0, viewport_height, 0.0);
+    let lower_left_corner =
+        origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
 
     // Render
     println!("P3");
@@ -21,19 +36,35 @@ fn generate_ppm() -> io::Result<()> {
     for j in (0..image_height).rev() {
         eprint!("\rScanlines remaining: {j} ");
         io::stderr().flush()?;
-
         for i in 0..image_width {
-            let pixel_color = Color {
-                red: i as f64 / (image_width - 1) as f64,
-                green: j as f64 / (image_height - 1) as f64,
-                blue: 0.25,
-            };
+            let u = i as f64 / (image_width - 1) as f64;
+            let v = j as f64 / (image_height - 1) as f64;
+            let ray = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
+            let pixel_color = ray_color(&ray);
             write_color(&mut io::stdout(), pixel_color)?;
         }
     }
 
     eprintln!("\nDone");
     Ok(())
+}
+
+fn ray_color(ray: &Ray) -> Color {
+    let dir = ray.direction().normalized();
+    let t = 0.5 * (dir.y() + 1.0);
+
+    let c1 = Vec3::from(Color {
+        red: 1.0,
+        green: 1.0,
+        blue: 1.0,
+    });
+    let c2 = Vec3::from(Color {
+        red: 0.5,
+        green: 0.7,
+        blue: 1.0,
+    });
+
+    ((1.0 - t) * c1 + t * c2).into()
 }
 
 fn write_color<T: io::Write>(writer: &mut T, color: Color) -> io::Result<()> {
