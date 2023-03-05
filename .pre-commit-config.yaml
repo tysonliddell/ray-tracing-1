@@ -7,3 +7,15 @@ repos:
         entry: cargo fmt --all --check
         language: system
         pass_filenames: false
+      - id: cargo-check
+        name: cargo-check
+        description: Check project and its dependencies for errors
+        entry: cargo check
+        language: system
+        pass_filenames: false
+      - id: clippy
+        name: clippy
+        description: Rust linter
+        entry: cargo clippy
+        language: system
+        pass_filenames: false
