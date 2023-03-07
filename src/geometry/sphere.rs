@@ -33,8 +33,12 @@ impl Hittable for Sphere {
 
         let t = root;
         let point = ray.at(t);
-        let normal = (point - self.center) / self.radius;
-        Some(HitRecord { point, normal, t })
+        let outward_normal = (point - self.center) / self.radius;
+
+        // FIXME: Do we have to calculate `set_face_normal` as a separate step?
+        let mut hr = HitRecord::new(point, outward_normal, t);
+        hr.set_face_normal(ray, outward_normal);
+        Some(hr)
     }
 }
 
