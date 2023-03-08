@@ -34,7 +34,7 @@ impl Ray {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::super::vec3::Vec3;
     use super::Ray;
 

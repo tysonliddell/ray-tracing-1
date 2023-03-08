@@ -58,3 +58,26 @@ pub trait Hittable {
     /// hittable or `None` if the ray does not hit it.
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
+
+impl Hittable for Vec<Box<dyn Hittable>> {
+    fn hit(&self, ray: &Ray, t_min: f64, mut t_max: f64) -> Option<HitRecord> {
+        let mut closest = None;
+        for hittable in self {
+            if let Some(hr) = hittable.hit(ray, t_min, t_max) {
+                t_max = hr.t;
+                closest = Some(hr);
+            }
+        }
+
+        closest
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn hit_on_vec_of_hittable() {
+        todo!()
+    }
+}

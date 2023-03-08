@@ -187,7 +187,7 @@ impl ops::IndexMut<usize> for Vec3 {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::Vec3;
 
     // A pythagorean quadruple (a,b,c,d) satisfies a*a + b*b + c*c == d*d

@@ -42,7 +42,7 @@ impl From<Vec3> for Color {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::Color;
     use crate::geometry::vec3::Vec3;
 

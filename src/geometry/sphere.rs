@@ -43,10 +43,10 @@ impl Hittable for Sphere {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
 
     #[test]
     fn hit() {
-        unimplemented!()
+        todo!()
     }
 }
