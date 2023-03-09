@@ -44,9 +44,52 @@ impl Hittable for Sphere {
 
 #[cfg(test)]
 mod tests {
+    use super::super::{hittable::Hittable, ray::Ray, vec3::Vec3};
+    use super::Sphere;
 
     #[test]
-    fn hit() {
-        todo!()
+    fn ray_misses_sphere() {
+        let sphere = Sphere::new(Vec3::new(0.0, 0.0, 1.0), 0.5);
+        let miss_ray = Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 1.0, 1.0));
+
+        assert!(sphere.hit(&miss_ray, -10.0, 10.0).is_none());
+    }
+
+    #[test]
+    fn ray_at_sphere_bullseye() {
+        let sphere = Sphere::new(Vec3::new(0.0, 0.0, 1.0), 0.5);
+        let bullseye_ray = Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 1.0));
+
+        let hr = sphere
+            .hit(&bullseye_ray, -1.0, 1.0)
+            .expect("Ray should hit sphere");
+        assert_eq!(0.5, hr.t);
+        assert_eq!(Vec3::new(0.0, 0.0, 0.5), hr.point);
+    }
+
+    #[test]
+    fn ray_t_bounds() {
+        let sphere = Sphere::new(Vec3::new(0.0, 0.0, 1.0), 0.5);
+        let bullseye_ray = Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 1.0));
+
+        assert!(sphere.hit(&bullseye_ray, -1.0, 0.4999).is_none());
+        assert!(sphere.hit(&bullseye_ray, -1.0, 0.5001).is_some());
+    }
+
+    #[test]
+    fn ray_scrapes_sphere() {
+        let sphere = Sphere::new(Vec3::new(0.0, 0.0, 1.0), 0.5);
+        let scrape_dir = Vec3::new(0.0, 1.0, 3.0_f64.sqrt());
+
+        // The scrape direction is where the ray is tangent to the sphere,
+        // which won't play nicely with floating point approximations.
+        // So we use a small delta direction that will move the ray closer
+        // to, or further away from the sphere.
+        let delta_dir = Vec3::new(0.0, 0.0, 0.0001);
+
+        let scrape_ray_hit = Ray::new(Vec3::new(0.0, 0.0, 0.0), scrape_dir + delta_dir);
+        let scrape_ray_miss = Ray::new(Vec3::new(0.0, 0.0, 0.0), scrape_dir - delta_dir);
+        assert!(sphere.hit(&scrape_ray_hit, -1.0, 1.0).is_some());
+        assert!(sphere.hit(&scrape_ray_miss, -1.0, 1.0).is_none());
     }
 }
