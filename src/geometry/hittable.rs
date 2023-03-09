@@ -59,10 +59,10 @@ pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
-impl Hittable for Vec<Box<dyn Hittable>> {
+impl Hittable for &[Box<dyn Hittable>] {
     fn hit(&self, ray: &Ray, t_min: f64, mut t_max: f64) -> Option<HitRecord> {
         let mut closest = None;
-        for hittable in self {
+        for hittable in self.iter() {
             if let Some(hr) = hittable.hit(ray, t_min, t_max) {
                 t_max = hr.t;
                 closest = Some(hr);
@@ -78,6 +78,9 @@ mod tests {
 
     #[test]
     fn hit_on_vec_of_hittable() {
-        todo!()
+        todo!(
+            "Write this test later when we have more than one type of \
+            hittable to test in a single slice."
+        )
     }
 }
