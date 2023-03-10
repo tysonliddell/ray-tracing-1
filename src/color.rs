@@ -24,8 +24,17 @@ pub struct Color {
 }
 
 impl Color {
-    pub fn new(red: f64, green: f64, blue: f64) -> Self {
-        Self { red, green, blue }
+    pub fn new<T, U, V>(red: T, green: U, blue: V) -> Self
+    where
+        T: Into<f64>,
+        U: Into<f64>,
+        V: Into<f64>,
+    {
+        Self {
+            red: red.into(),
+            green: green.into(),
+            blue: blue.into(),
+        }
     }
 }
 

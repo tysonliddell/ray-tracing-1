@@ -12,8 +12,17 @@ pub struct Vec3 {
 const VEC3_DIM: usize = 3;
 
 impl Vec3 {
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Self { x, y, z }
+    pub fn new<T, U, V>(x: T, y: U, z: V) -> Self
+    where
+        T: Into<f64>,
+        U: Into<f64>,
+        V: Into<f64>,
+    {
+        Self {
+            x: x.into(),
+            y: y.into(),
+            z: z.into(),
+        }
     }
 
     pub fn x(&self) -> f64 {

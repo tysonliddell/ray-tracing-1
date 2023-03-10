@@ -59,10 +59,13 @@ pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
-impl Hittable for &[Box<dyn Hittable>] {
+impl<T> Hittable for &[T]
+where
+    T: AsRef<dyn Hittable>,
+{
     fn hit(&self, ray: &Ray, t_min: f64, mut t_max: f64) -> Option<HitRecord> {
         let mut closest = None;
-        for hittable in self.iter() {
+        for hittable in self.iter().map(|x| x.as_ref()) {
             if let Some(hr) = hittable.hit(ray, t_min, t_max) {
                 t_max = hr.t;
                 closest = Some(hr);

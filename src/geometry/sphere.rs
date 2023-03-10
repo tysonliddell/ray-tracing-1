@@ -11,8 +11,11 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64) -> Self {
-        Self { center, radius }
+    pub fn new<T: Into<f64>>(center: Vec3, radius: T) -> Self {
+        Self {
+            center,
+            radius: radius.into(),
+        }
     }
 }
 
