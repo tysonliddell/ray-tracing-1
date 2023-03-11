@@ -1,86 +1,57 @@
+use std::{io, rc::Rc};
+
+use log::{error, info};
+
 use ray_tracing_1::{
-    color::Color,
-    geometry::{hittable::Hittable, ray::Ray, sphere::Sphere, vec3::Vec3},
-};
-use std::{
-    io::{self, Write},
-    rc::Rc,
+    camera::Camera,
+    geometry::{sphere::Sphere, vec3::Vec3},
+    tracer::{self, World},
 };
 
-type RcHittable = Rc<dyn Hittable>;
+const ASPECT_RATIO: f64 = 16.0 / 9.0;
 
 fn main() {
+    env_logger::init();
     if let Err(e) = generate_ppm() {
-        eprintln!("Error generating image: {}", e);
+        error!("Error generating image: {}", e);
         std::process::exit(1);
     }
 }
 
 fn generate_ppm() -> io::Result<()> {
-    // Image
-    let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
-    let image_height = (image_width as f64 / aspect_ratio) as i32;
+    let image_config = tracer::ImageConfig {
+        width: 400,
+        height: 225,
+        samples_per_pixel: 100,
+    };
 
-    // World
-    let world: Vec<RcHittable> = vec![
+    assert_eq!(
+        image_config.width as f64 / image_config.height as f64,
+        ASPECT_RATIO,
+        "Dimensions don't match aspect ratio!"
+    );
+
+    let world: World = vec![
         Rc::new(Sphere::new(Vec3::new(0, 0, -1.0), 0.5)),
         Rc::new(Sphere::new(Vec3::new(0, -100.5, -1), 100)),
     ];
+    let camera = Camera::new(ASPECT_RATIO);
 
-    // Camera
-    let viewport_height = 2.0;
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0;
-
-    let origin = Vec3::new(0.0, 0.0, 0.0);
-    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner =
-        origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
-
-    // Render
     println!("P3");
-    println!("{image_width} {image_height}");
+    println!("{} {}", image_config.width, image_config.height);
     println!("255");
 
-    for j in (0..image_height).rev() {
-        eprint!("\rScanlines remaining: {j} ");
-        io::stderr().flush()?;
-        for i in 0..image_width {
-            let u = i as f64 / (image_width - 1) as f64;
-            let v = j as f64 / (image_height - 1) as f64;
-            let ray = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
-            let pixel_color = ray_color(&ray, &world);
-            write_color(&mut io::stdout(), pixel_color)?;
-        }
+    info!("Rendering world...");
+    let scanlines = tracer::render(image_config, camera, world);
+
+    info!("Writing to file...");
+    for pixel_color in scanlines.iter().flatten() {
+        println!(
+            "{} {} {}",
+            pixel_color.red, pixel_color.green, pixel_color.blue
+        );
     }
 
-    eprintln!("\nDone");
+    info!("Done!");
     Ok(())
-}
-
-fn ray_color(ray: &Ray, world: &[RcHittable]) -> Color {
-    if let Some(hit) = world.hit(ray, 0.0, f64::MAX) {
-        let surf_normal = hit.normal;
-        let color_v = 0.5 * (surf_normal + Vec3::new(1, 1, 1));
-        return color_v.into();
-    }
-
-    let unit_dir = ray.direction().normalized();
-    let t = 0.5 * (unit_dir.y() + 1.0);
-
-    let c1 = Vec3::from(Color::new(1, 1, 1));
-    let c2 = Vec3::from(Color::new(0.5, 0.7, 1.0));
-    ((1.0 - t) * c1 + t * c2).into()
-}
-
-fn write_color<T: io::Write>(writer: &mut T, color: Color) -> io::Result<()> {
-    writeln!(
-        writer,
-        "{} {} {}",
-        (255.999 * color.red) as i32,
-        (255.999 * color.green) as i32,
-        (255.999 * color.blue) as i32,
-    )
 }

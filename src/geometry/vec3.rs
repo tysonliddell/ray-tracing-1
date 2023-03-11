@@ -195,6 +195,17 @@ impl ops::IndexMut<usize> for Vec3 {
     }
 }
 
+impl<T, U, V> From<(T, U, V)> for Vec3
+where
+    T: Into<f64>,
+    U: Into<f64>,
+    V: Into<f64>,
+{
+    fn from(value: (T, U, V)) -> Self {
+        Vec3::new(value.0.into(), value.1.into(), value.2.into())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Vec3;

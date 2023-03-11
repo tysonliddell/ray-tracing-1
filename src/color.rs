@@ -1,69 +1,56 @@
 use crate::geometry::vec3::Vec3;
 
 pub const RED: Color = Color {
-    red: 1.0,
-    green: 0.0,
-    blue: 0.0,
+    red: 255,
+    green: 0,
+    blue: 0,
 };
 pub const GREEN: Color = Color {
-    red: 0.0,
-    green: 1.0,
-    blue: 0.0,
+    red: 0,
+    green: 255,
+    blue: 0,
 };
 pub const BLUE: Color = Color {
-    red: 0.0,
-    green: 0.0,
-    blue: 1.0,
+    red: 0,
+    green: 0,
+    blue: 255,
 };
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Color {
-    pub red: f64,
-    pub green: f64,
-    pub blue: f64,
+    pub red: u8,
+    pub green: u8,
+    pub blue: u8,
 }
 
-impl Color {
-    pub fn new<T, U, V>(red: T, green: U, blue: V) -> Self
-    where
-        T: Into<f64>,
-        U: Into<f64>,
-        V: Into<f64>,
-    {
-        Self {
-            red: red.into(),
-            green: green.into(),
-            blue: blue.into(),
+impl TryFrom<Vec3> for Color {
+    type Error = &'static str;
+
+    /// Convert a vector in the half-open range (0.0, 0.0, 0.0) - (1.0, 1.0, 1.0)
+    /// to a color value.
+    fn try_from(v: Vec3) -> Result<Self, Self::Error> {
+        let (red, green, blue) = (v.x(), v.y(), v.z());
+
+        for v in [red, green, blue] {
+            if !(0.0..=1.0).contains(&v) {
+                return Err("Value outside of the unit interval.");
+            }
         }
+
+        Ok(Color {
+            red: ((red * 255.0) as u8),
+            green: ((green * 255.0) as u8),
+            blue: ((blue * 255.0) as u8),
+        })
     }
 }
 
-impl From<Color> for Vec3 {
-    fn from(color: Color) -> Self {
-        Vec3::new(color.red, color.green, color.blue)
-    }
-}
-
-impl From<Vec3> for Color {
-    fn from(v: Vec3) -> Self {
-        Color::new(v.x(), v.y(), v.z())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::Color;
-    use crate::geometry::vec3::Vec3;
-
-    #[test]
-    fn into_vec3() {
-        let color_v: Vec3 = Color::new(1.0, 2.0, 3.0).into();
-        assert_eq!(Vec3::new(1.0, 2.0, 3.0), color_v);
-    }
-
-    #[test]
-    fn from_vec3() {
-        let color: Color = Vec3::new(1.0, 2.0, 3.0).into();
-        assert_eq!(Color::new(1.0, 2.0, 3.0), color);
+impl From<(u8, u8, u8)> for Color {
+    fn from(value: (u8, u8, u8)) -> Self {
+        Color {
+            red: value.0,
+            green: value.1,
+            blue: value.2,
+        }
     }
 }
