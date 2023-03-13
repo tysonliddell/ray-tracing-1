@@ -6,6 +6,7 @@ use ray_tracing_1::{
     camera::Camera,
     geometry::{sphere::Sphere, vec3::Vec3},
     tracer::{self, World},
+    utils::correct_gamma,
 };
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
@@ -43,9 +44,12 @@ fn generate_ppm() -> io::Result<()> {
     println!("255");
 
     info!("Rendering world...");
-    let scanlines = tracer::render(image_config, camera, world);
+    let mut scanlines = tracer::render(image_config, camera, world);
 
-    info!("Writing scanlines...");
+    info!("Correcting gamma.");
+    correct_gamma(&mut scanlines);
+
+    info!("Writing scanlines.");
     for pixel_color in scanlines.iter().flatten() {
         println!(
             "{} {} {}",
