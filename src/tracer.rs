@@ -14,6 +14,7 @@ pub struct ImageConfig {
     pub width: u32,
     pub height: u32,
     pub samples_per_pixel: u32,
+    pub ray_bounce_limit: u32,
 }
 
 /// Trait object that can be rendered.
@@ -70,7 +71,7 @@ fn get_multi_sampled_pixel_color(
         let v = (pixel_pos.row as f64 + rng.random_f64()) / (config.height - 1) as f64;
         let ray = camera.get_ray(u, v);
 
-        let color = ray_color(&ray, world);
+        let color = ray_color(&ray, world, rng, config.ray_bounce_limit);
         r += color.red as u32;
         g += color.green as u32;
         b += color.blue as u32;
@@ -84,19 +85,30 @@ fn get_multi_sampled_pixel_color(
 }
 
 /// Get the color of hittable closest to the ray.
-fn ray_color(ray: &Ray, world: &[RcHittable]) -> Color {
-    if let Some(hit) = world.hit(ray, 0.0, f64::INFINITY) {
-        let surf_normal = hit.normal;
-        let color_v = 0.5 * (surf_normal + Vec3::new(1, 1, 1));
-        return color_v
-            .try_into()
-            .expect("FIXME: Looks like this color needs clamping!");
+fn ray_color(ray: &Ray, world: &[RcHittable], rng: &RTRng, bounces_remaining: u32) -> Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if bounces_remaining == 0 {
+        return (0, 0, 0).into();
     }
 
-    let unit_dir = ray.direction().normalized();
-    let t = 0.5 * (unit_dir.y() + 1.0);
+    match world.hit(ray, 0.0, f64::INFINITY) {
+        Some(hit) => {
+            let target_dir = hit.normal + rng.random_in_unit_sphere();
+            let color = ray_color(
+                &Ray::new(hit.point, target_dir),
+                world,
+                rng,
+                bounces_remaining - 1,
+            );
+            color.scaled(0.5)
+        }
+        None => {
+            let unit_dir = ray.direction().normalized();
+            let t = 0.5 * (unit_dir.y() + 1.0);
 
-    let c1 = Vec3::new(1, 1, 1);
-    let c2 = Vec3::new(0.5, 0.7, 1.0);
-    ((1.0 - t) * c1 + t * c2).try_into().unwrap()
+            let c1 = Vec3::new(1, 1, 1);
+            let c2 = Vec3::new(0.5, 0.7, 1.0);
+            ((1.0 - t) * c1 + t * c2).try_into().unwrap()
+        }
+    }
 }

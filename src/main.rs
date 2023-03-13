@@ -23,6 +23,7 @@ fn generate_ppm() -> io::Result<()> {
         width: 400,
         height: 225,
         samples_per_pixel: 100,
+        ray_bounce_limit: 50,
     };
 
     assert_eq!(
@@ -44,7 +45,7 @@ fn generate_ppm() -> io::Result<()> {
     info!("Rendering world...");
     let scanlines = tracer::render(image_config, camera, world);
 
-    info!("Writing to file...");
+    info!("Writing scanlines...");
     for pixel_color in scanlines.iter().flatten() {
         println!(
             "{} {} {}",
