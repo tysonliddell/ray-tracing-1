@@ -30,9 +30,9 @@ impl Hittable for Sphere {
         // solve the quadratic equation
         let sqrt_d = (descrim > 0.0).then_some(descrim.sqrt())?;
         let root = Some((-half_b - sqrt_d) / a)
-            .filter(|t| (t_min..t_max).contains(t))
+            .filter(|&t| t > t_min && t < t_max)
             .or_else(|| Some((-half_b + sqrt_d) / a))
-            .filter(|t| (t_min..t_max).contains(t))?;
+            .filter(|&t| t > t_min && t < t_max)?;
 
         let t = root;
         let point = ray.at(t);
