@@ -25,10 +25,10 @@ impl Hittable for Sphere {
         let a = ray.direction().length_squared();
         let half_b = ray.direction().dot(co);
         let c = co.length_squared() - self.radius * self.radius;
-        let descrim = half_b * half_b - a * c;
+        let discrim = half_b * half_b - a * c;
 
         // solve the quadratic equation
-        let sqrt_d = (descrim > 0.0).then_some(descrim.sqrt())?;
+        let sqrt_d = (discrim >= 0.0).then_some(discrim.sqrt())?;
         let root = Some((-half_b - sqrt_d) / a)
             .filter(|&t| t > t_min && t < t_max)
             .or_else(|| Some((-half_b + sqrt_d) / a))
