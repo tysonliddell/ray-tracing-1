@@ -41,4 +41,8 @@ impl RTRng {
             }
         }
     }
+
+    pub fn random_unit_vector(&self) -> Vec3 {
+        self.random_in_unit_sphere().normalized()
+    }
 }

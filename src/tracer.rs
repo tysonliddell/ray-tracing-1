@@ -93,7 +93,7 @@ fn ray_color(ray: &Ray, world: &[RcHittable], rng: &RTRng, bounces_remaining: u3
 
     match world.hit(ray, 0.001, f64::INFINITY) {
         Some(hit) => {
-            let target_dir = hit.normal + rng.random_in_unit_sphere();
+            let target_dir = hit.normal + rng.random_unit_vector();
             let color = ray_color(
                 &Ray::new(hit.point, target_dir),
                 world,
