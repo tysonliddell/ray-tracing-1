@@ -42,7 +42,20 @@ impl RTRng {
         }
     }
 
+    /// Get a random vector on the unit sphere. Used for Lambertian reflection/diffusion.
     pub fn random_unit_vector(&self) -> Vec3 {
         self.random_in_unit_sphere().normalized()
+    }
+
+    /// Get a random vector on the unit sphere in the same hemisphere as the unit normal.
+    /// An alternative, uniform diffuse formulation.
+    #[allow(unused)]
+    pub fn random_in_hemisphere(&self, normal: Vec3) -> Vec3 {
+        let in_unit_sphere = self.random_unit_vector();
+        if normal.dot(in_unit_sphere) > 0.0 {
+            in_unit_sphere
+        } else {
+            -in_unit_sphere
+        }
     }
 }
