@@ -9,9 +9,10 @@ pub struct RTRng {
 
 impl RTRng {
     pub fn new() -> Self {
-        Self {
-            rng: fastrand::Rng::new(),
-        }
+        let rng = fastrand::Rng::new();
+        rng.seed(0);
+
+        Self { rng }
     }
 
     /// Get a random number in the range [0,1)
