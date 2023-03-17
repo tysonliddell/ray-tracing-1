@@ -1,9 +1,11 @@
 //! A *Hittable* refers to something that can be *hit* by a ray in the scene.
 //! This could be something concrete like a [`super::sphere::Sphere`], or
 //! something more general, such as an array of surfaces.
+use std::fmt::Debug;
+
 use super::{ray::Ray, vec3::Vec3};
 
-pub struct HitRecord {
+pub struct HitRecord<'a> {
     /// The point where a ray hits the hittable
     pub point: Vec3,
 
@@ -18,6 +20,9 @@ pub struct HitRecord {
     /// faces the origin of the incident `Ray`. When set to `None`
     /// the value hasn't been calculated yet.
     pub front_face: Option<bool>,
+
+    /// Reference to the hittable that was hit.
+    pub hittable: &'a dyn Hittable,
     // TODO:
     // - Determine if `normal` needs to be an `Option<Vec3>`.
     // - Given that `t` relates to an incident `Ray`, it looks like
@@ -26,13 +31,14 @@ pub struct HitRecord {
     //   Change this if it makes sense to.
 }
 
-impl HitRecord {
-    pub fn new(point: Vec3, normal: Vec3, t: f64) -> Self {
-        HitRecord {
+impl<'a> HitRecord<'a> {
+    pub fn new(point: Vec3, normal: Vec3, t: f64, hittable: &'a dyn Hittable) -> Self {
+        Self {
             point,
             normal,
             t,
             front_face: None,
+            hittable,
         }
     }
 
@@ -53,7 +59,7 @@ impl HitRecord {
 }
 
 /// Used to determine whether a hittable in the scene has been hit by a ray.
-pub trait Hittable {
+pub trait Hittable: Debug {
     /// Returns a [`HitRecord`] describing where a given [`Ray`] hits the
     /// hittable or `None` if the ray does not hit it.
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
@@ -61,7 +67,7 @@ pub trait Hittable {
 
 impl<T> Hittable for &[T]
 where
-    T: AsRef<dyn Hittable>,
+    T: AsRef<dyn Hittable> + Debug,
 {
     fn hit(&self, ray: &Ray, t_min: f64, mut t_max: f64) -> Option<HitRecord> {
         let mut closest = None;
