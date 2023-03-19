@@ -1,11 +1,13 @@
 //! A *Hittable* refers to something that can be *hit* by a ray in the scene.
 //! This could be something concrete like a [`super::sphere::Sphere`], or
 //! something more general, such as an array of surfaces.
-use std::fmt::Debug;
+use std::rc::Rc;
+
+use crate::material::Material;
 
 use super::{ray::Ray, vec3::Vec3};
 
-pub struct HitRecord<'a> {
+pub struct HitRecord {
     /// The point where a ray hits the hittable
     pub point: Vec3,
 
@@ -21,8 +23,8 @@ pub struct HitRecord<'a> {
     /// the value hasn't been calculated yet.
     pub front_face: Option<bool>,
 
-    /// Reference to the hittable that was hit.
-    pub hittable: &'a dyn Hittable,
+    /// The material of the hittable that was hit.
+    pub material: Rc<dyn Material>,
     // TODO:
     // - Determine if `normal` needs to be an `Option<Vec3>`.
     // - Given that `t` relates to an incident `Ray`, it looks like
@@ -31,14 +33,14 @@ pub struct HitRecord<'a> {
     //   Change this if it makes sense to.
 }
 
-impl<'a> HitRecord<'a> {
-    pub fn new(point: Vec3, normal: Vec3, t: f64, hittable: &'a dyn Hittable) -> Self {
+impl HitRecord {
+    pub fn new(point: Vec3, normal: Vec3, t: f64, material: Rc<dyn Material>) -> Self {
         Self {
             point,
             normal,
             t,
             front_face: None,
-            hittable,
+            material,
         }
     }
 
@@ -59,7 +61,7 @@ impl<'a> HitRecord<'a> {
 }
 
 /// Used to determine whether a hittable in the scene has been hit by a ray.
-pub trait Hittable: Debug {
+pub trait Hittable {
     /// Returns a [`HitRecord`] describing where a given [`Ray`] hits the
     /// hittable or `None` if the ray does not hit it.
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
@@ -67,7 +69,7 @@ pub trait Hittable: Debug {
 
 impl<T> Hittable for &[T]
 where
-    T: AsRef<dyn Hittable> + Debug,
+    T: AsRef<dyn Hittable>,
 {
     fn hit(&self, ray: &Ray, t_min: f64, mut t_max: f64) -> Option<HitRecord> {
         let mut closest = None;

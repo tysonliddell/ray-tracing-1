@@ -92,16 +92,13 @@ fn ray_color(ray: &Ray, world: &[RcHittable], rng: &RTRng, bounces_remaining: u3
     }
 
     match world.hit(ray, 0.001, f64::INFINITY) {
-        Some(hit) => {
-            let target_dir = hit.normal + rng.random_unit_vector();
-            let color = ray_color(
-                &Ray::new(hit.point, target_dir),
-                world,
-                rng,
-                bounces_remaining - 1,
-            );
-            color.scaled(0.5)
-        }
+        Some(hit) => match hit.material.scatter(ray, &hit, rng) {
+            Some(scattered) => {
+                let color = ray_color(&scattered, world, rng, bounces_remaining - 1);
+                hit.material.attenuate(color)
+            }
+            None => (0, 0, 0).into(),
+        },
         None => {
             let unit_dir = ray.direction().normalized();
             let t = 0.5 * (unit_dir.y() + 1.0);

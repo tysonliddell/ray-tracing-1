@@ -48,6 +48,11 @@ impl Vec3 {
         x * x + y * y + z * z
     }
 
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
+    }
+
     /// Get the dot product with another vector.
     pub fn dot(&self, other: Self) -> f64 {
         (0..VEC3_DIM).map(|i| self[i] * other[i]).sum()
@@ -71,6 +76,16 @@ impl Vec3 {
     // pub fn normalize(&mut self) {
     //     *self /= self.length();
     // }
+
+    /// Reflect the vector in the plane defined by a unit normal.
+    ///
+    /// # Warning
+    /// This methods does not check that the provided normal vector is of unit length.
+    /// If a non-normalised normal vector is provided the resultant reflection will not
+    /// be correct.
+    pub fn reflect(&self, unit_normal: Vec3) -> Vec3 {
+        *self - (2.0 * self.dot(unit_normal)) * unit_normal
+    }
 }
 
 impl ops::Neg for Vec3 {

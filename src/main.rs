@@ -5,9 +5,12 @@ use log::{error, info};
 use ray_tracing_1::{
     camera::Camera,
     geometry::{sphere::Sphere, vec3::Vec3},
+    material::{Lambertian, Material, Metal},
     tracer::{self, World},
     utils::correct_gamma,
 };
+
+type RcMaterial = Rc<dyn Material>;
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
 
@@ -33,10 +36,34 @@ fn generate_ppm() -> io::Result<()> {
         "Dimensions don't match aspect ratio!"
     );
 
+    let material_ground = Rc::new(Lambertian::new(0.8, 0.8, 0.0));
+    let material_center = Rc::new(Lambertian::new(0.7, 0.3, 0.3));
+    let material_left = Rc::new(Metal::new(0.8, 0.8, 0.8));
+    let material_right = Rc::new(Metal::new(0.8, 0.6, 0.2));
+
     let world: World = vec![
-        Rc::new(Sphere::new(Vec3::new(0, 0, -1.0), 0.5)),
-        Rc::new(Sphere::new(Vec3::new(0, -100.5, -1), 100)),
+        Rc::new(Sphere::new(
+            Vec3::new(0, -100.5, -1),
+            100,
+            Rc::clone(&material_ground) as RcMaterial,
+        )),
+        Rc::new(Sphere::new(
+            Vec3::new(0, 0, -1.0),
+            0.5,
+            Rc::clone(&material_center) as RcMaterial,
+        )),
+        Rc::new(Sphere::new(
+            Vec3::new(-1.0, 0, -1.0),
+            0.5,
+            Rc::clone(&material_left) as RcMaterial,
+        )),
+        Rc::new(Sphere::new(
+            Vec3::new(1.0, 0, -1.0),
+            0.5,
+            Rc::clone(&material_right) as RcMaterial,
+        )),
     ];
+
     let camera = Camera::new(ASPECT_RATIO);
 
     println!("P3");

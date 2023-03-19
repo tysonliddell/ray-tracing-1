@@ -1,20 +1,26 @@
+use std::{fmt::Debug, rc::Rc};
+
+use crate::material::Material;
+
 use super::{
     hittable::{HitRecord, Hittable},
     ray::Ray,
     vec3::Vec3,
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
+    pub material: Rc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new<T: Into<f64>>(center: Vec3, radius: T) -> Self {
+    pub fn new<T: Into<f64>>(center: Vec3, radius: T, material: Rc<dyn Material>) -> Self {
         Self {
             center,
             radius: radius.into(),
+            material,
         }
     }
 }
@@ -39,7 +45,7 @@ impl Hittable for Sphere {
         let outward_normal = (point - self.center) / self.radius;
 
         // FIXME: Do we have to calculate `set_face_normal` as a separate step?
-        let mut hr = HitRecord::new(point, outward_normal, t, self);
+        let mut hr = HitRecord::new(point, outward_normal, t, Rc::clone(&self.material));
         hr.set_face_normal(ray, outward_normal);
         Some(hr)
     }

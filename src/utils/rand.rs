@@ -60,3 +60,9 @@ impl RTRng {
         }
     }
 }
+
+impl Default for RTRng {
+    fn default() -> Self {
+        Self::new()
+    }
+}
