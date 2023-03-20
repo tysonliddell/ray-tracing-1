@@ -54,20 +54,27 @@ impl Material for Lambertian {
 #[derive(Debug)]
 pub struct Metal {
     /// The reflection coefficient broken by colors (red, green, blue).
-    albedo: (f64, f64, f64),
+    albedo_rgb: (f64, f64, f64),
+
+    /// Fuzziness factor for rays reflected off the metal. A value of `0.0` gives
+    /// no perturbation (angle of incidence equal to angle or reflection), and larger
+    /// values increase how far from the perfect reflection angle the reflected rays
+    /// can deviate. Smoother surfaces have a lower fuzziness factor.
+    fuzz: f64,
 }
 
 impl Metal {
-    pub fn new(albedo_red: f64, albedo_green: f64, albedo_blue: f64) -> Self {
+    pub fn new(albedo_rgb: (f64, f64, f64), fuzz: f64) -> Self {
         Self {
-            albedo: (albedo_red, albedo_green, albedo_blue),
+            albedo_rgb,
+            fuzz: fuzz.min(1.0),
         }
     }
 }
 
 impl Material for Metal {
     fn attenuate(&self, color: Color) -> Color {
-        let (red_att, green_att, blue_att) = self.albedo;
+        let (red_att, green_att, blue_att) = self.albedo_rgb;
         Color {
             red: (color.red as f64 * red_att) as u8,
             green: (color.green as f64 * green_att) as u8,
@@ -76,9 +83,12 @@ impl Material for Metal {
     }
 
     /// Metal simply scatters rays by reflection.
-    fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord, _rng: &RTRng) -> Option<Ray> {
+    fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord, rng: &RTRng) -> Option<Ray> {
         let reflected = ray_in.direction().normalized().reflect(hit_record.normal);
-        let scattered = Ray::new(hit_record.point, reflected);
+        let scattered = Ray::new(
+            hit_record.point,
+            reflected + self.fuzz * rng.random_in_unit_sphere(),
+        );
 
         if scattered.direction().dot(hit_record.normal) > 0.0 {
             Some(scattered)
