@@ -1,5 +1,5 @@
 //! This module contains the [`Vec3`] type.
-use std::ops;
+use std::ops::{self, Neg};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 /// Three-dimensional Euclidean vector.
@@ -85,6 +85,25 @@ impl Vec3 {
     /// be correct.
     pub fn reflect(&self, unit_normal: Vec3) -> Vec3 {
         *self - (2.0 * self.dot(unit_normal)) * unit_normal
+    }
+
+    /// Compute the refraction of a `Vec3` representing a ray as it passes from
+    /// one refractive medium to another at a boundary plane defined by a normal.
+    ///
+    /// # Panics
+    /// Will panic if the normal is oriented the wrong way around or has zero length.
+    pub fn refract(&self, normal: Vec3, etai_over_etat: f64) -> Vec3 {
+        let incident_unit_vector = self.normalized();
+        let unit_normal = normal.normalized();
+        let r_dot_n = incident_unit_vector.dot(unit_normal);
+        if r_dot_n > 0.0 {
+            panic!("Unexpected normal orientation");
+        }
+
+        let cos_theta = incident_unit_vector.dot(unit_normal).abs().min(1.0);
+        let r_out_perp = etai_over_etat * (incident_unit_vector + cos_theta * unit_normal);
+        let r_out_parallel = (1.0 - r_out_perp.length_squared()).abs().sqrt().neg() * unit_normal;
+        r_out_perp + r_out_parallel
     }
 }
 

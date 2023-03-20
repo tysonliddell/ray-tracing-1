@@ -5,7 +5,7 @@ use log::{error, info};
 use ray_tracing_1::{
     camera::Camera,
     geometry::{sphere::Sphere, vec3::Vec3},
-    material::{Lambertian, Material, Metal},
+    material::{Dielectric, Lambertian, Material, Metal},
     tracer::{self, World},
     utils::correct_gamma,
 };
@@ -37,8 +37,8 @@ fn generate_ppm() -> io::Result<()> {
     );
 
     let material_ground = Rc::new(Lambertian::new(0.8, 0.8, 0.0));
-    let material_center = Rc::new(Lambertian::new(0.7, 0.3, 0.3));
-    let material_left = Rc::new(Metal::new((0.8, 0.8, 0.8), 0.3));
+    let material_center = Rc::new(Dielectric::new(1.5));
+    let material_left = Rc::new(Dielectric::new(1.5));
     let material_right = Rc::new(Metal::new((0.8, 0.6, 0.2), 1.0));
 
     let world: World = vec![
