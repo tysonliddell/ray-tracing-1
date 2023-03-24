@@ -58,6 +58,11 @@ fn generate_ppm() -> io::Result<()> {
             Rc::clone(&material_left) as RcMaterial,
         )),
         Rc::new(Sphere::new(
+            Vec3::new(-1.0, 0, -1.0),
+            -0.4,
+            Rc::clone(&material_left) as RcMaterial,
+        )),
+        Rc::new(Sphere::new(
             Vec3::new(1.0, 0, -1.0),
             0.5,
             Rc::clone(&material_right) as RcMaterial,
