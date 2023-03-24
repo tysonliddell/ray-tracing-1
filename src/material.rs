@@ -117,10 +117,19 @@ impl Material for Dielectric {
             self.refractive_index
         };
 
-        let refracted = ray_in
-            .direction()
-            .refract(hit_record.normal, refraction_ratio);
-        Some(Ray::new(hit_record.point, refracted))
+        let cos_theta = (-ray_in.direction().normalized().dot(hit_record.normal)).min(1.0);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        let cannot_refract = refraction_ratio * sin_theta > 1.0;
+
+        let direction = if cannot_refract {
+            ray_in.direction().reflect(hit_record.normal)
+        } else {
+            ray_in
+                .direction()
+                .refract(hit_record.normal, refraction_ratio)
+        };
+
+        Some(Ray::new(hit_record.point, direction))
     }
 
     fn attenuate(&self, color: Color) -> Color {
