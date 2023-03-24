@@ -1,11 +1,11 @@
-use std::{io, rc::Rc};
+use std::{f64::consts::PI, io, rc::Rc};
 
 use log::{error, info};
 
 use ray_tracing_1::{
     camera::Camera,
     geometry::{sphere::Sphere, vec3::Vec3},
-    material::{Dielectric, Lambertian, Material, Metal},
+    material::{Lambertian, Material},
     tracer::{self, World},
     utils::correct_gamma,
 };
@@ -36,40 +36,24 @@ fn generate_ppm() -> io::Result<()> {
         "Dimensions don't match aspect ratio!"
     );
 
-    let material_ground = Rc::new(Lambertian::new(0.8, 0.8, 0.0));
-    let material_center = Rc::new(Lambertian::new(0.1, 0.2, 0.5));
-    let material_left = Rc::new(Dielectric::new(1.5));
-    let material_right = Rc::new(Metal::new((0.8, 0.6, 0.2), 1.0));
+    let material_left = Rc::new(Lambertian::new(0.0, 0.0, 1.0));
+    let material_right = Rc::new(Lambertian::new(1.0, 0.0, 0.0));
 
+    let r = (PI / 4.0).cos();
     let world: World = vec![
         Rc::new(Sphere::new(
-            Vec3::new(0, -100.5, -1),
-            100,
-            Rc::clone(&material_ground) as RcMaterial,
-        )),
-        Rc::new(Sphere::new(
-            Vec3::new(0, 0, -1.0),
-            0.5,
-            Rc::clone(&material_center) as RcMaterial,
-        )),
-        Rc::new(Sphere::new(
-            Vec3::new(-1.0, 0, -1.0),
-            0.5,
+            Vec3::new(-r, 0, -1),
+            r,
             Rc::clone(&material_left) as RcMaterial,
         )),
         Rc::new(Sphere::new(
-            Vec3::new(-1.0, 0, -1.0),
-            -0.4,
-            Rc::clone(&material_left) as RcMaterial,
-        )),
-        Rc::new(Sphere::new(
-            Vec3::new(1.0, 0, -1.0),
-            0.5,
+            Vec3::new(r, 0, -1),
+            r,
             Rc::clone(&material_right) as RcMaterial,
         )),
     ];
 
-    let camera = Camera::new(ASPECT_RATIO);
+    let camera = Camera::new(90.0, ASPECT_RATIO);
 
     println!("P3");
     println!("{} {}", image_config.width, image_config.height);
