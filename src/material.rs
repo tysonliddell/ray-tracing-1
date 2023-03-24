@@ -107,10 +107,17 @@ impl Dielectric {
     pub fn new(refractive_index: f64) -> Self {
         Self { refractive_index }
     }
+
+    fn reflectance(cosine: f64, ref_idx: f64) -> f64 {
+        // Use Schlick's approximation for reflectance.
+        let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+        let r0 = r0 * r0;
+        r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+    }
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord, _rng: &RTRng) -> Option<Ray> {
+    fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord, rng: &RTRng) -> Option<Ray> {
         let refraction_ratio = if hit_record.front_face.unwrap() {
             1.0 / self.refractive_index
         } else {
@@ -121,7 +128,9 @@ impl Material for Dielectric {
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
 
-        let direction = if cannot_refract {
+        let direction = if cannot_refract
+            || Self::reflectance(cos_theta, refraction_ratio) > rng.random_f64()
+        {
             ray_in.direction().reflect(hit_record.normal)
         } else {
             ray_in
