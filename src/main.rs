@@ -24,8 +24,8 @@ fn main() {
 
 fn generate_ppm() -> io::Result<()> {
     let image_config = tracer::ImageConfig {
-        width: 400,
-        height: 225,
+        width: 400 * 3,
+        height: 225 * 3,
         samples_per_pixel: 100,
         ray_bounce_limit: 50,
     };
@@ -80,7 +80,7 @@ fn generate_ppm() -> io::Result<()> {
         vup,
         vfov_degrees: 20.0,
         aspect_ratio: ASPECT_RATIO,
-        aperture_diameter: 2.0,
+        aperture_diameter: 0.25,
         focus_dist,
     };
     let camera = Camera::new(camera_config);
