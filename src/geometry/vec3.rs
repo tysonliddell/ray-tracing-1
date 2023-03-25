@@ -59,7 +59,7 @@ impl Vec3 {
     }
 
     /// Get the cross product with another vector.
-    pub fn cross(&self, other: &Self) -> Self {
+    pub fn cross(&self, other: Self) -> Self {
         Self::new(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
@@ -333,8 +333,8 @@ mod tests {
     fn cross() {
         let v1 = Vec3::new(1.0, 2.0, 3.0);
         let v2 = Vec3::new(2.0, 3.0, 4.0);
-        assert_eq!(Vec3::new(-1.0, 2.0, -1.0), v1.cross(&v2));
-        assert_eq!(Vec3::new(1.0, -2.0, 1.0), v2.cross(&v1));
+        assert_eq!(Vec3::new(-1.0, 2.0, -1.0), v1.cross(v2));
+        assert_eq!(Vec3::new(1.0, -2.0, 1.0), v2.cross(v1));
     }
 
     #[test]
