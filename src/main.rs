@@ -26,7 +26,7 @@ fn generate_ppm() -> io::Result<()> {
     let image_config = tracer::ImageConfig {
         width: 1200,
         height: 800,
-        samples_per_pixel: 10,
+        samples_per_pixel: 500,
         ray_bounce_limit: 50,
     };
 
