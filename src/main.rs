@@ -73,7 +73,7 @@ fn generate_ppm() -> io::Result<()> {
         look_from: (-2, 2, 1).into(),
         look_at: (0, 0, -1).into(),
         vup: (0, 1, 0).into(),
-        vfov_degrees: 90.0,
+        vfov_degrees: 20.0,
         aspect_ratio: ASPECT_RATIO,
     };
     let camera = Camera::new(camera_config);
