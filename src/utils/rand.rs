@@ -59,6 +59,21 @@ impl RTRng {
             -in_unit_sphere
         }
     }
+
+    /// Get a random vector in a the unit disk in the `z=0` plane.
+    pub fn random_in_unit_disk(&self) -> Vec3 {
+        loop {
+            let p = Vec3::new(
+                self.random_f64_range(-1.0..1.0),
+                self.random_f64_range(-1.0..1.0),
+                0.0,
+            );
+
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
 }
 
 impl Default for RTRng {

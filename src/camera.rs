@@ -1,10 +1,22 @@
-use crate::geometry::{ray::Ray, vec3::Vec3};
+use crate::{
+    geometry::{ray::Ray, vec3::Vec3},
+    utils::rand::RTRng,
+};
 
 pub struct Camera {
     origin: Vec3,
     lower_left_corner: Vec3,
     horizontal: Vec3,
     vertical: Vec3,
+
+    // u,v,w form an orthonormal basis such that u,v are vectors in the
+    // plane of the camera, and w is normal to the plane of the camera.
+    u: Vec3,
+    v: Vec3,
+    #[allow(unused)]
+    w: Vec3,
+
+    lens_radius: f64,
 }
 
 /// Configuration used when constructing a [`Camera`].
@@ -25,6 +37,13 @@ pub struct Config {
 
     /// The aspect ratio of the viewport. Used to determine the horizontal fov from `vfov`.
     pub aspect_ratio: f64,
+
+    /// The size of the aperture.
+    pub aperture_diameter: f64,
+
+    /// The focus distance of the camera. Objects at this distance from the camera
+    /// will be in perfect focus. Thin lens approximation is used.
+    pub focus_dist: f64,
 }
 
 impl Camera {
@@ -39,15 +58,19 @@ impl Camera {
         let v = w.cross(u);
 
         let origin = config.look_from;
-        let horizontal = viewport_width * u;
-        let vertical = viewport_height * v;
-        let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - w;
+        let horizontal = config.focus_dist * viewport_width * u;
+        let vertical = config.focus_dist * viewport_height * v;
+        let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - config.focus_dist * w;
 
         Self {
             origin,
             horizontal,
             vertical,
             lower_left_corner,
+            u,
+            v,
+            w,
+            lens_radius: config.aperture_diameter / 2.0,
         }
     }
 }
@@ -67,8 +90,12 @@ impl Camera {
     /// let ray_at_viewport_top_right = camera.get_ray(1.0, 1.0);
     /// let ray_outside_viewport = camera.get_ray(1.1, 1.0);
     /// ```
-    pub fn get_ray(&self, s: f64, t: f64) -> Ray {
-        let dir = self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin;
-        Ray::new(self.origin, dir)
+    pub fn get_ray(&self, s: f64, t: f64, rng: &RTRng) -> Ray {
+        let rd = self.lens_radius * rng.random_in_unit_disk();
+        let offset = self.u * rd.x() + self.v * rd.y();
+
+        let dir =
+            self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset;
+        Ray::new(self.origin + offset, dir)
     }
 }

@@ -69,12 +69,19 @@ fn generate_ppm() -> io::Result<()> {
         )),
     ];
 
+    let look_from = Vec3::from((3, 3, 2));
+    let look_at = Vec3::from((0, 0, -1));
+    let vup = Vec3::from((0, 1, 0));
+    let focus_dist = (look_from - look_at).length();
+
     let camera_config = CameraConfig {
-        look_from: (-2, 2, 1).into(),
-        look_at: (0, 0, -1).into(),
-        vup: (0, 1, 0).into(),
+        look_from,
+        look_at,
+        vup,
         vfov_degrees: 20.0,
         aspect_ratio: ASPECT_RATIO,
+        aperture_diameter: 2.0,
+        focus_dist,
     };
     let camera = Camera::new(camera_config);
 

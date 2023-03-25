@@ -69,7 +69,7 @@ fn get_multi_sampled_pixel_color(
     for _ in 0..config.samples_per_pixel {
         let u = (pixel_pos.col as f64 + rng.random_f64()) / (config.width - 1) as f64;
         let v = (pixel_pos.row as f64 + rng.random_f64()) / (config.height - 1) as f64;
-        let ray = camera.get_ray(u, v);
+        let ray = camera.get_ray(u, v, rng);
 
         let color = ray_color(&ray, world, rng, config.ray_bounce_limit);
         r += color.red as u32;
