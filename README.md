@@ -1,5 +1,5 @@
 # ray-tracing-1
-Code following Peter Shirley's *Ray Tracing in One Weekend*. Book can be
+Rust implementation of Peter Shirley's *Ray Tracing in One Weekend*. Book can be
 found [here](https://raytracing.github.io/books/RayTracingInOneWeekend.html).
 
 ## Final result
