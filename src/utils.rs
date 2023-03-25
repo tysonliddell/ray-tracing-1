@@ -1,6 +1,6 @@
 use crate::tracer::ImagePixels;
 
-pub(crate) mod rand;
+pub mod rand;
 
 /// Apply gamma 2 correction to an image.
 pub fn correct_gamma(pixels: &mut ImagePixels) {

@@ -25,9 +25,18 @@ impl RTRng {
         range.start + (range.end - range.start) * self.random_f64()
     }
 
-    // fn random_vec3(&self) -> Vec3 {
-    //     (self.random_f64(), self.random_f64(), self.random_f64()).into()
-    // }
+    pub fn random_vec3(&self) -> Vec3 {
+        (self.random_f64(), self.random_f64(), self.random_f64()).into()
+    }
+
+    pub fn random_vec3_range(&self, range: Range<f64>) -> Vec3 {
+        (
+            self.random_f64_range(range.clone()),
+            self.random_f64_range(range.clone()),
+            self.random_f64_range(range),
+        )
+            .into()
+    }
 
     pub fn random_in_unit_sphere(&self) -> Vec3 {
         loop {
